@@ -1,1 +1,112 @@
-# Library_Manager_Backend
+# Library Manager Backend
+
+API REST desarrollada con Spring Boot para la gestión de una biblioteca (libros, copias, usuarios y préstamos).
+
+## Tecnologías
+
+- Java 17 (compilado con target 17)
+- Spring Boot 3.5.4 (Web, Data JPA)
+- PostgreSQL
+- MapStruct + Lombok
+- springdoc-openapi (Swagger UI)
+- Docker / Docker Compose
+
+## Ejecución rápida
+
+Requisitos: Docker y Docker Compose.
+
+```bash
+git clone https://github.com/JulianLopez11/Library_Manager_Backend.git
+cd Library_Manager_Backend
+docker compose up -d --build
+docker exec -i postgres-biblioteca pg_restore -U prueba -d biblioteca_db --clean --if-exists < dump/biblioteca_db.dump
+```
+
+Esto:
+
+1. Clona el repositorio.
+2. Levanta un contenedor `postgres-biblioteca` (PostgreSQL 16) y un contenedor `libreria-app` con la API, esperando a que la base de datos esté saludable antes de arrancar (`healthcheck` + `depends_on: condition: service_healthy`).
+3. Restaura los datos de prueba incluidos en el repositorio (ver [Datos de prueba](#datos-de-prueba)).
+
+La API queda disponible en `http://localhost:8080` y el Swagger UI en `http://localhost:8080/swagger-ui/index.html`.
+
+## Variables de entorno
+
+La API se conecta a la base de datos exclusivamente mediante variables de entorno. No hay credenciales ni puertos hardcodeados en el código.
+
+Todas las variables tienen un valor por defecto en `docker-compose.yml`, por lo que el comando anterior funciona sin configuración adicional. Para personalizar puertos o credenciales (por ejemplo, si `8080` o `5432` ya están en uso en el host), copia `.env.example` a `.env` y ajusta los valores:
+
+```bash
+cp .env.example .env
+```
+
+| Variable            | Descripción                                   | Valor por defecto            |
+|---------------------|------------------------------------------------|-------------------------------|
+| `APP_PORT`          | Puerto en el host para la API                  | `8080`                        |
+| `DB_PORT`           | Puerto en el host para PostgreSQL              | `5432`                        |
+| `POSTGRES_DB`       | Nombre de la base de datos                     | `biblioteca_db`               |
+| `POSTGRES_USER`     | Usuario de la base de datos                    | `prueba`                      |
+| `POSTGRES_PASSWORD` | Contraseña del usuario de la base de datos     | `prueba`                      |
+
+Internamente, el contenedor `app` recibe `DB_URI`, `DB_USER`, `DB_PASSWORD` y `DB_DRIVER` (JDBC), construidos a partir de las variables anteriores.
+
+
+
+## Datos de prueba
+
+El directorio [`dump/`](./dump) contiene un backup de PostgreSQL (`biblioteca_db.dump`, formato `custom` de `pg_dump`) con datos de prueba:
+
+- 4 usuarios (uno de ellos sin préstamos).
+- 4 libros con copias físicas registradas.
+- 3 préstamos en distintos estados: `PENDING`, `APPROVED` (al día) y `APPROVED` vencido (se resuelve como `OVERDUE` al consultarlo, ya que su fecha de devolución esperada ya pasó).
+
+Para restaurarlo manualmente en cualquier momento (por ejemplo, tras reiniciar el contenedor de base de datos):
+
+```bash
+docker exec -i postgres-biblioteca pg_restore -U prueba -d biblioteca_db --clean --if-exists < dump/biblioteca_db.dump
+```
+
+`--clean --if-exists` elimina las tablas existentes antes de recrearlas, por lo que el comando es seguro de ejecutar tanto sobre una base de datos recién creada (vacía) como sobre una que ya tenga datos.
+
+## Desarrollo local 
+
+
+1. Levanta únicamente el servicio de base de datos:
+
+   ```bash
+   docker compose up -d db
+   ```
+
+2. Si el contenedor `libreria-app` está corriendo, detenlo primero para liberar el puerto `8080`:
+
+   ```bash
+   docker stop libreria-app
+   ```
+
+3. Exporta las variables de entorno apuntando al Postgres publicado en `localhost:5432` y corre la app:
+
+   **PowerShell**
+   ```powershell
+   $env:DB_URI = "jdbc:postgresql://localhost:5432/biblioteca_db"
+   $env:DB_USER = "prueba"
+   $env:DB_PASSWORD = "prueba"
+   $env:DB_DRIVER = "org.postgresql.Driver"
+   mvn spring-boot:run
+   ```
+
+   **bash**
+   ```bash
+   export DB_URI="jdbc:postgresql://localhost:5432/biblioteca_db"
+   export DB_USER="prueba"
+   export DB_PASSWORD="prueba"
+   export DB_DRIVER="org.postgresql.Driver"
+   mvn spring-boot:run
+   ```
+
+
+## Documentación de la API (Swagger)
+
+Una vez la aplicación esté corriendo:
+
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI docs: `http://localhost:8080/v3/api-docs`
