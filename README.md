@@ -2,6 +2,49 @@
 
 API REST desarrollada con Spring Boot para la gestión de una biblioteca (libros, copias, usuarios y préstamos).
 
+## Organización del proyecto 
+
+```text
+.
+├── mvnw / mvnw.cmd
+├── pom.xml
+├── README.md
+├── dump/
+├── docs/
+├── src/
+│   ├── main/
+│   │   ├── java/prueba/tecnica/libreria/
+│   │   │   ├── config/
+│   │   │   ├── controller/
+│   │   │   ├── exception/
+│   │   │   ├── mapper/
+│   │   │   ├── model/
+│   │   │   │   ├── dto/
+│   │   │   │   │   ├── request/
+│   │   │   │   │   └── response/
+│   │   │   │   └── entity/
+│   │   │   │       └── enums/
+│   │   │   ├── repository/
+│   │   │   └── service/
+│   │   └── resources/
+│   └── test/
+│       └── java/prueba/tecnica/libreria/
+└── target/
+```
+
+
+
+## Diagrama De Componentes Modelo C4
+
+![alt text](docs/img/componentes.png)
+
+---
+
+## Diagrama DB
+![alt text](docs/img/database.png)
+
+---
+
 ## Tecnologías
 
 - Java 17 (compilado con target 17)
@@ -22,7 +65,6 @@ docker compose up -d --build
 docker exec -i postgres-biblioteca pg_restore -U prueba -d biblioteca_db --clean --if-exists < dump/biblioteca_db.dump
 ```
 
-Esto:
 
 1. Clona el repositorio.
 2. Levanta un contenedor `postgres-biblioteca` (PostgreSQL 16) y un contenedor `libreria-app` con la API, esperando a que la base de datos esté saludable antes de arrancar (`healthcheck` + `depends_on: condition: service_healthy`).
@@ -110,3 +152,28 @@ Una vez la aplicación esté corriendo:
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI docs: `http://localhost:8080/v3/api-docs`
+
+## Endpoints
+
+| Recurso | Endpoint | Función |
+|---------|----------|---------|
+| Users | `/users` | Crea un usuario nuevo. |
+| Users | `/users/{id}` | Actualiza un usuario existente por ID. |
+| Users | `/users/{id}` | Elimina un usuario por ID. |
+| Users | `/users/{id}` | Obtiene un usuario por ID. |
+| Users | `/users/all` | Lista todos los usuarios. |
+| Books | `/books` | Crea un libro nuevo. |
+| Books | `/books/{id}` | Actualiza un libro existente por ID. |
+| Books | `/books/{id}` | Elimina un libro por ID. |
+| Books | `/books/{id}` | Obtiene un libro por ID. |
+| Books | `/books/all` | Lista todos los libros. |
+| Books | `/books/{id}/copies` | Agrega copias físicas a un libro. |
+| Books | `/books/isbn/{isbn}/copies/available` | Lista las copias disponibles de un libro por ISBN. |
+| Loans | `/loans` | Registra un préstamo para un usuario y un libro. |
+| Loans | `/loans/user/{userId}` | Lista los préstamos de un usuario. |
+| Loans | `/loans/book/{bookId}` | Lista los préstamos asociados a un libro. |
+
+
+## Autor
+
+- [Julian Camilo Lopez Barrero](https://github.com/JulianLopez11)
