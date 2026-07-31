@@ -65,7 +65,6 @@ docker compose up -d --build
 docker exec -i postgres-biblioteca pg_restore -U prueba -d biblioteca_db --clean --if-exists < dump/biblioteca_db.dump
 ```
 
-Esto:
 
 1. Clona el repositorio.
 2. Levanta un contenedor `postgres-biblioteca` (PostgreSQL 16) y un contenedor `libreria-app` con la API, esperando a que la base de datos esté saludable antes de arrancar (`healthcheck` + `depends_on: condition: service_healthy`).
