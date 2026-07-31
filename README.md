@@ -41,7 +41,7 @@ API REST desarrollada con Spring Boot para la gestión de una biblioteca (libros
 ---
 
 ## Diagrama DB
-![alt text](docs\img\database.png)
+![alt text](docs/img/database.png)
 
 ---
 
