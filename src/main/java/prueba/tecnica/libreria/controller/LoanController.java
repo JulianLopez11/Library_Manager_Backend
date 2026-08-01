@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +59,19 @@ public class LoanController {
     public ResponseEntity<List<LoanResponseDTO>> getLoansByUserId(
             @Parameter(description = "User ID", example = "1") @PathVariable Long userId) {
         return ResponseEntity.ok(loanMapper.toDtoList(loanService.findLoansByUserId(userId)));
+    }
+
+    @PatchMapping("/{id}/return")
+    @Operation(summary = "Return a loan", description = "Marks a loan as returned and frees up its associated physical copy")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Loan returned successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoanResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content)
+    })
+    public ResponseEntity<LoanResponseDTO> returnLoan(
+            @Parameter(description = "Loan ID", example = "1") @PathVariable Long id) {
+        Loan returnedLoan = loanService.returnLoan(id);
+        return ResponseEntity.ok(loanMapper.toDto(returnedLoan));
     }
 
     @GetMapping("/book/{bookId}")
