@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import prueba.tecnica.libreria.exception.ActiveLoanAlreadyExistsException;
 import prueba.tecnica.libreria.exception.BookNotFoundException;
+import prueba.tecnica.libreria.exception.LoanNotFoundException;
 import prueba.tecnica.libreria.exception.NoAvailableCopyException;
 import prueba.tecnica.libreria.exception.UserNotFoundException;
 import prueba.tecnica.libreria.model.entity.BookCopy;
@@ -62,6 +63,27 @@ public class LoanService {
                 .build();
 
         return loanRepository.save(newLoan);
+    }
+
+    // Mark a loan as returned, freeing up its physical copy. Idempotent: returning
+    // an already-returned loan just returns its current state without changing it.
+    @Transactional
+    public Loan returnLoan(Long loanId) {
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new LoanNotFoundException("Loan not found with id: " + loanId));
+
+        if (loan.getActualReturnDate() == null) {
+            loan.setActualReturnDate(LocalDate.now());
+            loan.setLoanStatus(LoanState.RETURNED);
+
+            BookCopy copy = loan.getBookCopy();
+            copy.setStatus(CopyStatus.AVAILABLE);
+            bookCopyRepository.save(copy);
+
+            loan = loanRepository.save(loan);
+        }
+
+        return loan;
     }
 
     // List loans by user

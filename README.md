@@ -172,6 +172,7 @@ Una vez la aplicación esté corriendo:
 | Loans | `/loans` | Registra un préstamo para un usuario y un libro. |
 | Loans | `/loans/user/{userId}` | Lista los préstamos de un usuario. |
 | Loans | `/loans/book/{bookId}` | Lista los préstamos asociados a un libro. |
+| Loans | `/loans/{id}/return` | Marca un préstamo como devuelto y libera su copia física. |
 
 
 ## Autor
