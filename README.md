@@ -96,13 +96,13 @@ Internamente, el contenedor `app` recibe `DB_URI`, `DB_USER`, `DB_PASSWORD` y `D
 
 ## Datos de prueba
 
-El directorio [`dump/`](./dump) contiene un backup de PostgreSQL (`biblioteca_db.dump`, formato `custom` de `pg_dump`) con datos de prueba:
+El directorio [`dump/`](./dump) contiene un backup de PostgreSQL (`biblioteca_db.dump`, formato `custom` de `pg_dump`) con datos de prueba **ya cargados**:
 
 - 4 usuarios (uno de ellos sin préstamos).
 - 4 libros con copias físicas registradas.
 - 3 préstamos en distintos estados: `PENDING`, `APPROVED` (al día) y `APPROVED` vencido (se resuelve como `OVERDUE` al consultarlo, ya que su fecha de devolución esperada ya pasó).
 
-Para restaurarlo manualmente en cualquier momento (por ejemplo, tras reiniciar el contenedor de base de datos):
+No es necesario crear ni insertar datos manualmente: el comando de [Ejecución rápida](#ejecución-rápida) ya restaura este dump. Solo debes repetirlo manualmente si necesitas reiniciar el estado de la base de datos en algún momento posterior (por ejemplo, tras reiniciar el contenedor):
 
 ```bash
 docker exec -i postgres-biblioteca pg_restore -U prueba -d biblioteca_db --clean --if-exists < dump/biblioteca_db.dump
